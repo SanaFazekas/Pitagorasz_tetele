@@ -320,13 +320,13 @@
           <label for="shapeType">Alakzat / Téma:</label>
           <select id="shapeType">
             <option value="random">Véletlenszerű / Vegyes</option>
-            <option value="right_triangle">Děkékszögű háromszög</option>
+            <option value="right_triangle">Derékszögű háromszög</option>
             <option value="isosceles_triangle">Egyenlőszárú háromszög</option>
             <option value="square">Négyzet</option>
             <option value="rectangle">Téglalap</option>
-            <option value="trapezoid">Derékszögű / Egyenlőszárú trapéz</option>
-            <option value="rhombus_deltoid">Rombusz / Deltoid (átlók)</option>
-            <option value="parallelogram">Paralelogramma</option>
+            <option value="trapezoid">Trapéz</option>
+            <option value="rhombus_deltoid">Rombusz / Deltoid</option>
+            <option value="parallelogram">Paralelogramma (Romboid)</option>
             <option value="circle">Kör (húr és sugár)</option>
           </select>
         </div>
@@ -335,8 +335,8 @@
           <label for="calcGoal">Keresett érték:</label>
           <select id="calcGoal">
             <option value="random">Vegyes (Befogó vagy Átfogó)</option>
-            <option value="hypotenuse">Átfogó számítása ($c$)</option>
-            <option value="leg">Befogó számítása ($a$ vagy $b$)</option>
+            <option value="hypotenuse">Átfogó számítása (c)</option>
+            <option value="leg">Befogó számítása (a vagy b)</option>
           </select>
         </div>
 
@@ -404,7 +404,6 @@
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  // Püthagoraszi tripletek a szép számokhoz
   const pythagoreanTriplets = [
     [3, 4, 5], [6, 8, 10], [5, 12, 13], [9, 12, 15], 
     [8, 15, 17], [10, 24, 26], [12, 16, 20], [15, 20, 25]
@@ -439,21 +438,20 @@
     
     if (shape === 'right_triangle') {
       let triplet = getRandomArrayElement(pythagoreanTriplets);
-      // Ha kérés van rá, hogy átfogó vagy befogó legyen:
       let findHypotenuse = (goal === 'random') ? Math.random() > 0.5 : (goal === 'hypotenuse');
 
       if (findHypotenuse) {
         let a = triplet[0], b = triplet[1], c = triplet[2];
-        task.text = `Adott egy derékszögű háromszög, amelynek befogói $a = ${a}$ ${u} és $b = ${b}$ ${u}. Számítsd ki az átfogó ($c$) hosszát!`;
+        task.text = `Adott egy derékszögű háromszög, amelynek befogói a = ${a} ${u} és b = ${b} ${u}. Számítsd ki az átfogó (c) hosszát!`;
         task.targetInputs = ['c'];
         task.solution = { c: c * lengthUnits[u], c_unit: u };
-        task.steps = `Pitagorasz-tétel alkalmazása: $c^2 = a^2 + b^2$<br>$c^2 = ${a}^2 + ${b}^2 = ${a*a} + ${b*b} = ${c*c}$<br>$c = \\sqrt{${c*c}} = ${c}$ ${u}`;
+        task.steps = `Pitagorasz-tétel alkalmazása: c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup><br>c<sup>2</sup> = ${a}<sup>2</sup> + ${b}<sup>2</sup> = ${a*a} + ${b*b} = ${c*c}<br>c = √(${c*c}) = ${c} ${u}`;
       } else {
         let a = triplet[0], b = triplet[1], c = triplet[2];
-        task.text = `Adott egy derékszögű háromszög, amelynek átfogója $c = ${c}$ ${u}$ és az egyik befogója $a = ${a}$ ${u}. Számítsd ki a másik befogó ($b$) hosszát!`;
+        task.text = `Adott egy derékszögű háromszög, amelynek átfogója c = ${c} ${u} és az egyik befogója a = ${a} ${u}. Számítsd ki a másik befogó (b) hosszát!`;
         task.targetInputs = ['b'];
         task.solution = { b: b * lengthUnits[u], b_unit: u };
-        task.steps = `Pitagorasz-tétel alkalmazása: $b^2 = c^2 - a^2$<br>$b^2 = ${c}^2 - ${a}^2 = ${c*c} - ${a*a} = ${b*b}$<br>$b = \\sqrt{${b*b}} = ${b}$ ${u}`;
+        task.steps = `Pitagorasz-tétel alkalmazása: b<sup>2</sup> = c<sup>2</sup> - a<sup>2</sup><br>b<sup>2</sup> = ${c}<sup>2</sup> - ${a}<sup>2</sup> = ${c*c} - ${a*a} = ${b*b}<br>b = √(${b*b}) = ${b} ${u}`;
       }
     }
     else if (shape === 'isosceles_triangle') {
@@ -463,28 +461,28 @@
       let side = triplet[2];
       let base = 2 * halfBase;
 
-      task.text = `Egy egyenlőszárú háromszög alapja $c = ${base}$ ${u}, szára pedig $a = ${side}$ ${u}. Számítsd ki az alaphoz tartozó magasságot ($m_c$)!`;
+      task.text = `Egy egyenlőszárú háromszög alapja c = ${base} ${u}, szára pedig a = ${side} ${u}. Számítsd ki az alaphoz tartozó magasságot (m<sub>c</sub>)!`;
       task.targetInputs = ['m'];
       task.solution = { m: height * lengthUnits[u], m_unit: u };
-      task.steps = `Az egyenlőszárú háromszög magassága felezi az alapot: $f_c = ${base}/2 = ${halfBase}$ ${u}.<br>Pitagorasz-tétel a derékszögű fél-háromszögre: $m_c^2 = a^2 - f_c^2$<br>$m_c^2 = ${side}^2 - ${halfBase}^2 = ${side*side} - ${halfBase*halfBase} = ${height*height}$<br>$m_c = ${height}$ ${u}`;
+      task.steps = `Az egyenlőszárú háromszög magassága felezi az alapot: f<sub>c</sub> = ${base} / 2 = ${halfBase} ${u}.<br>Pitagorasz-tétel a derékszögű fél-háromszögre: m<sub>c</sub><sup>2</sup> = a<sup>2</sup> - f<sub>c</sub><sup>2</sup><br>m<sub>c</sub><sup>2</sup> = ${side}<sup>2</sup> - ${halfBase}<sup>2</sup> = ${side*side} - ${halfBase*halfBase} = ${height*height}<br>m<sub>c</sub> = ${height} ${u}`;
     }
     else if (shape === 'square') {
       let a = getRandomInt(4, 15);
       let d = parseFloat((a * Math.sqrt(2)).toFixed(2));
 
-      task.text = `Adott egy négyzet, amelynek oldala $a = ${a}$ ${u}. Számítsd ki az átlójának ($d$) hosszát!`;
+      task.text = `Adott egy négyzet, amelynek oldala a = ${a} ${u}. Számítsd ki az átlójának (d) hosszát!`;
       task.targetInputs = ['d'];
       task.solution = { d: d * lengthUnits[u], d_unit: u };
-      task.steps = `Négyzet átlója a Pitagorasz-tétellel: $d^2 = a^2 + a^2 = 2a^2$<br>$d = a \\sqrt{2} = ${a} \\cdot 1.414 \\approx ${d}$ ${u}`;
+      task.steps = `Négyzet átlója a Pitagorasz-tétellel: d<sup>2</sup> = a<sup>2</sup> + a<sup>2</sup> = 2 · a<sup>2</sup><br>d = a · √2 = ${a} · 1,414 ≈ ${d} ${u}`;
     }
     else if (shape === 'rectangle') {
       let triplet = getRandomArrayElement(pythagoreanTriplets);
       let a = triplet[0], b = triplet[1], d = triplet[2];
 
-      task.text = `Egy téglalap oldalai $a = ${a}$ ${u}$ és $b = ${b}$ ${u}. Számítsd ki az átlójának ($d$) hosszát!`;
+      task.text = `Egy téglalap oldalai a = ${a} ${u} és b = ${b} ${u}. Számítsd ki az átlójának (d) hosszát!`;
       task.targetInputs = ['d'];
       task.solution = { d: d * lengthUnits[u], d_unit: u };
-      task.steps = `Téglalap átlója: $d^2 = a^2 + b^2$<br>$d^2 = ${a}^2 + ${b}^2 = ${a*a} + ${b*b} = ${d*d}$<br>$d = ${d}$ ${u}`;
+      task.steps = `Téglalap átlója: d<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup><br>d<sup>2</sup> = ${a}<sup>2</sup> + ${b}<sup>2</sup> = ${a*a} + ${b*b} = ${d*d}<br>d = √(${d*d}) = ${d} ${u}`;
     }
     else if (shape === 'trapezoid') {
       let triplet = getRandomArrayElement([[3,4,5], [5,12,13]]);
@@ -492,20 +490,20 @@
       let a = c + 2 * x;
       let leg = triplet[2];
 
-      task.text = `Egy egyenlőszárú trapéz alapjai $a = ${a}$ ${u}$ és $c = ${c}$ ${u}$, magassága pedig $m = ${h}$ ${u}. Számítsd ki a szár ($s$) hosszát!`;
+      task.text = `Egy egyenlőszárú trapéz alapjai a = ${a} ${u} és c = ${c} ${u}, magassága pedig m = ${h} ${u}. Számítsd ki a szár (s) hosszát!`;
       task.targetInputs = ['s'];
       task.solution = { s: leg * lengthUnits[u], s_unit: u };
-      task.steps = `A trapéz szélére eső derékszögű háromszög befogói $m = ${h}$ és $(a-c)/2 = (${a}-${c})/2 = ${x}$.<br>Pitagorasz-tétel a szárra: $s^2 = m^2 + x^2 = ${h}^2 + ${x}^2 = ${leg*leg}$<br>$s = ${leg}$ ${u}`;
+      task.steps = `A trapéz szélére eső derékszögű háromszög befogói m = ${h} és (a - c) / 2 = (${a} - ${c}) / 2 = ${x}.<br>Pitagorasz-tétel a szárra: s<sup>2</sup> = m<sup>2</sup> + x<sup>2</sup> = ${h}<sup>2</sup> + ${x}<sup>2</sup> = ${leg*leg}<br>s = √(${leg*leg}) = ${leg} ${u}`;
     }
     else if (shape === 'rhombus_deltoid') {
       let triplet = getRandomArrayElement([[3,4,5], [5,12,13]]);
       let e_half = triplet[0], f_half = triplet[1], side = triplet[2];
       let e = 2 * e_half, f = 2 * f_half;
 
-      task.text = `Egy rombusz átlói $e = ${e}$ ${u}$ és $f = ${f}$ ${u}. Számítsd ki a rombusz oldalának ($a$) hosszát!`;
+      task.text = `Egy rombusz átlói e = ${e} ${u} és f = ${f} ${u}. Számítsd ki a rombusz oldalának (a) hosszát!`;
       task.targetInputs = ['a'];
       task.solution = { a: side * lengthUnits[u], a_unit: u };
-      task.steps = `A rombusz átlói merőlegesen felezik egymást, így derékszögű háromszögeket kapunk befogókkal $e/2 = ${e_half}$ és $f/2 = ${f_half}$.<br>$a^2 = (${e}/2)^2 + (${f}/2)^2 = ${e_half*e_half} + ${f_half*f_half} = ${side*side}$<br>$a = ${side}$ ${u}`;
+      task.steps = `A rombusz átlói merőlegesen felezik egymást, így derékszögű háromszögeket kapunk befogókkal e / 2 = ${e_half} és f / 2 = ${f_half}.<br>a<sup>2</sup> = (${e} / 2)<sup>2</sup> + (${f} / 2)<sup>2</sup> = ${e_half*e_half} + ${f_half*f_half} = ${side*side}<br>a = √(${side*side}) = ${side} ${u}`;
     }
     else if (shape === 'parallelogram') {
       let triplet = getRandomArrayElement([[3,4,5], [5,12,13]]);
@@ -513,20 +511,20 @@
       let a = base_part + x;
       let leg = triplet[2];
 
-      task.text = `Egy paralelogramma $a = ${a}$ ${u}$-s oldalához tartozó magasság $m = ${h}$ ${u}$, a magasság által az oldalon letörtszabott rövidebb szakasz $x = ${x}$ ${u}. Számítsd ki a paralelogramma másik oldalának ($b$) hosszát!`;
+      task.text = `Egy paralelogramma (romboid) a = ${a} ${u}-s oldalához tartozó magasság m = ${h} ${u}, a magasság által az oldalon letörtszabott rövidebb szakasz x = ${x} ${u}. Számítsd ki a paralelogramma másik oldalának (b) hosszát!`;
       task.targetInputs = ['b'];
       task.solution = { b: leg * lengthUnits[u], b_unit: u };
-      task.steps = `A magasság által levágott derékszögű háromszögből a $b$ oldal az átfogó:<br>$b^2 = m^2 + x^2 = ${h}^2 + ${x}^2 = ${leg*leg}$<br>$b = ${leg}$ ${u}`;
+      task.steps = `A magasság által levágott derékszögű háromszögből a b oldal az átfogó:<br>b<sup>2</sup> = m<sup>2</sup> + x<sup>2</sup> = ${h}<sup>2</sup> + ${x}<sup>2</sup> = ${leg*leg}<br>b = √(${leg*leg}) = ${leg} ${u}`;
     }
-    else { // kör húr
+    else { 
       let triplet = getRandomArrayElement([[3,4,5], [6,8,10], [5,12,13]]);
       let r = triplet[2], d_center = triplet[0], half_chord = triplet[1];
       let chord = 2 * half_chord;
 
-      task.text = `Egy $r = ${r}$ ${u}$ sugarú körben a középponttól $d = ${d_center}$ ${u}$ távolságra lévő húr hosszát kell kiszámítani ($k$).`;
+      task.text = `Egy r = ${r} ${u} sugarú körben a középponttól d = ${d_center} ${u} távolságra lévő húr hosszát (k) kell kiszámítani.`;
       task.targetInputs = ['k'];
       task.solution = { k: chord * lengthUnits[u], k_unit: u };
-      task.steps = `A sugár, a távolság és a húr fele derékszögű háromszöget alkot.<br>Fél húr: $x^2 = r^2 - d^2 = ${r}^2 - ${d_center}^2 = ${half_chord*half_chord}$ -> $x = ${half_chord}$ ${u}.<br>A teljes húr: $k = 2 \cdot x = 2 \cdot ${half_chord} = ${chord}$ ${u}`;
+      task.steps = `A sugár, a távolság és a húr fele derékszögű háromszöget alkot.<br>Fél húr: x<sup>2</sup> = r<sup>2</sup> - d<sup>2</sup> = ${r}<sup>2</sup> - ${d_center}<sup>2</sup> = ${half_chord*half_chord} -> x = ${half_chord} ${u}.<br>A teljes húr: k = 2 · x = 2 · ${half_chord} = ${chord} ${u}`;
     }
 
     return task;
@@ -600,6 +598,18 @@
       case 'rectangle':
         content = `<rect x="70" y="40" width="160" height="90" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
                    <line x1="70" y1="40" x2="230" y2="130" stroke="${stroke}" stroke-width="2" stroke-dasharray="5,5"/>`;
+        break;
+      case 'parallelogram':
+        // Romboid / Paralelogramma ábra ferde oldalakkal
+        content = `<polygon points="90,120 230,120 210,50 70,50" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
+                   <line x1="70" y1="50" x2="70" y2="120" stroke="${stroke}" stroke-width="2" stroke-dasharray="5,5"/>`;
+        break;
+      case 'circle':
+        // Kör sugárral és húrral
+        content = `<circle cx="150" cy="85" r="55" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
+                   <line x1="150" y1="85" x2="205" y2="85" stroke="${stroke}" stroke-width="2"/>
+                   <line x1="110" y1="125" x2="190" y2="125" stroke="${accent}" stroke-width="2" stroke-dasharray="4,4"/>
+                   <line x1="150" y1="85" x2="150" y2="125" stroke="${stroke}" stroke-width="2" stroke-dasharray="3,3"/>`;
         break;
       default:
         content = `<polygon points="100,30 200,30 240,130 60,130" fill="${fill}" stroke="${stroke}" stroke-width="3"/>`;
@@ -717,7 +727,7 @@
       'rectangle': 'Téglalap (átló)',
       'trapezoid': 'Trapéz',
       'rhombus_deltoid': 'Rombusz / Deltoid',
-      'parallelogram': 'Paralelogramma',
+      'parallelogram': 'Paralelogramma (Romboid)',
       'circle': 'Kör (húr)'
     };
     return names[shape] || 'Geometriai alakzat';
