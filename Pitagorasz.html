@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pitagorasz-tétele és alkalmazásai</title>
+  <style>
+    :root {
+      --primary: #2b5c8f;
+      --primary-hover: #1d4066;
+      --bg-color: #f4f7f9;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --border: #dcdfe6;
+      --success: #2e7d32;
+      --success-bg: #e8f5e9;
+      --error: #c62828;
+      --error-bg: #ffebee;
+      --accent: #f57c00;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-container {
+      max-width: 1000px;
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding: 25px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      border-bottom: 2px solid var(--bg-color);
+      padding-bottom: 15px;
+    }
+
+    header h1 {
+      color: var(--primary);
+      font-size: 1.8rem;
+    }
+
+    header p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 25px;
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: #fafbfc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .panel h2 {
+      font-size: 1.2rem;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 9px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .task-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      background: #fff;
+    }
+
+    .task-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+
+    .task-description {
+      font-size: 1.05rem;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+
+    .canvas-container {
+      text-align: center;
+      margin: 15px 0;
+      background: #fafafa;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      padding: 15px;
+    }
+
+    svg {
+      max-width: 100%;
+      height: 180px;
+    }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .input-box label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .input-with-unit {
+      display: flex;
+      gap: 5px;
+    }
+
+    .input-with-unit input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .input-with-unit select {
+      width: 80px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #1b5e20; }
+
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-secondary:hover { background: #5a6268; }
+
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: #333; }
+    .btn-outline:hover { background: #e9ecef; }
+
+    .feedback {
+      padding: 15px;
+      border-radius: 6px;
+      display: none;
+      margin-top: 15px;
+    }
+
+    .feedback.success {
+      display: block;
+      background: var(--success-bg);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+
+    .feedback.error {
+      display: block;
+      background: var(--error-bg);
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+
+    .solution-steps {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #333;
+      background: rgba(255,255,255,0.7);
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      max-width: 700px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .history-table th, .history-table td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .history-table th {
+      background: #f4f7f9;
+    }
+
+    .tag-success { color: var(--success); font-weight: bold; }
+    .tag-error { color: var(--error); font-weight: bold; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printableArea, #printableArea * { visibility: visible; }
+      #printableArea { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <h1>Pitagorasz-tétele és alkalmazásai</h1>
+    <p>Interaktív matematika feladatgeneráló és gyakorló alkalmazás</p>
+  </header>
+
+  <div class="main-grid">
+    <aside class="panel">
+      <div>
+        <h2>Beállítások</h2>
+
+        <div class="form-group">
+          <label for="studentName">Tanuló neve:</label>
+          <input type="text" id="studentName" placeholder="Pl. Kovács Péter">
+        </div>
+
+        <div class="form-group">
+          <label for="shapeType">Alakzat / Téma:</label>
+          <select id="shapeType">
+            <option value="random">Véletlenszerű / Vegyes</option>
+            <option value="right_triangle">Děkékszögű háromszög</option>
+            <option value="isosceles_triangle">Egyenlőszárú háromszög</option>
+            <option value="square">Négyzet</option>
+            <option value="rectangle">Téglalap</option>
+            <option value="trapezoid">Derékszögű / Egyenlőszárú trapéz</option>
+            <option value="rhombus_deltoid">Rombusz / Deltoid (átlók)</option>
+            <option value="parallelogram">Paralelogramma</option>
+            <option value="circle">Kör (húr és sugár)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="calcGoal">Keresett érték:</label>
+          <select id="calcGoal">
+            <option value="random">Vegyes (Befogó vagy Átfogó)</option>
+            <option value="hypotenuse">Átfogó számítása ($c$)</option>
+            <option value="leg">Befogó számítása ($a$ vagy $b$)</option>
+          </select>
+        </div>
+
+        <div class="button-group" style="flex-direction: column;">
+          <button class="btn-primary" onclick="generateTask()">Új feladat generálása</button>
+          <button class="btn-outline" onclick="openHistoryModal()">Gyakorlásom</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 25px;">
+        <button class="btn-secondary" style="width: 100%;" onclick="resetForm()">Adatok törlése</button>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <div class="task-card">
+        <div class="task-title" id="taskTitle">Feladat</div>
+        <div class="task-description" id="taskText">Töltsd ki a bal oldali paneleket és kattints az "Új feladat generálása" gombra!</div>
+        
+        <div class="canvas-container" id="canvasContainer">
+          <svg id="shapeSvg" viewBox="0 0 300 160">
+            <!-- Dinamikus SVG -->
+          </svg>
+        </div>
+
+        <div class="inputs-grid" id="inputsGrid"></div>
+
+        <div class="button-group" style="margin-top: 20px;">
+          <button class="btn-success" onclick="checkAnswer()">ELLENŐRZÉS</button>
+          <button class="btn-outline" onclick="generateTask()">Tovább új feladatra</button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="historyModal" class="modal">
+  <div class="modal-content" id="printableArea">
+    <div class="modal-header">
+      <h2 id="modalStudentName">Gyakorlásom eredményei</h2>
+      <button class="btn-outline no-print" onclick="closeHistoryModal()">✕</button>
+    </div>
+    
+    <div id="historyListContainer"></div>
+
+    <div class="button-group no-print" style="margin-top: 20px; justify-content: flex-end;">
+      <button class="btn-primary" onclick="window.print()">Nyomtatás / Mentés PDF-be</button>
+      <button class="btn-secondary" onclick="closeHistoryModal()">Bezárás</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentTask = null;
+  let practiceHistory = [];
+  const lengthUnits = { 'mm': 0.1, 'cm': 1, 'dm': 10, 'm': 100 };
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getRandomArrayElement(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  // Püthagoraszi tripletek a szép számokhoz
+  const pythagoreanTriplets = [
+    [3, 4, 5], [6, 8, 10], [5, 12, 13], [9, 12, 15], 
+    [8, 15, 17], [10, 24, 26], [12, 16, 20], [15, 20, 25]
+  ];
+
+  function generateTask() {
+    const shapeTypeSelect = document.getElementById('shapeType').value;
+    const calcGoal = document.getElementById('calcGoal').value;
+
+    let shape = shapeTypeSelect;
+    if (shape === 'random') {
+      const shapes = ['right_triangle', 'isosceles_triangle', 'square', 'rectangle', 'trapezoid', 'rhombus_deltoid', 'parallelogram', 'circle'];
+      shape = getRandomArrayElement(shapes);
+    }
+
+    currentTask = buildPythagorasTask(shape, calcGoal);
+    renderTask();
+  }
+
+  function buildPythagorasTask(shape, goal) {
+    let task = {
+      shape: shape,
+      targetInputs: [],
+      solution: {},
+      text: "",
+      steps: "",
+      checked: false,
+      isCorrect: false
+    };
+
+    let u = getRandomArrayElement(['cm', 'dm', 'm']);
+    
+    if (shape === 'right_triangle') {
+      let triplet = getRandomArrayElement(pythagoreanTriplets);
+      // Ha kérés van rá, hogy átfogó vagy befogó legyen:
+      let findHypotenuse = (goal === 'random') ? Math.random() > 0.5 : (goal === 'hypotenuse');
+
+      if (findHypotenuse) {
+        let a = triplet[0], b = triplet[1], c = triplet[2];
+        task.text = `Adott egy derékszögű háromszög, amelynek befogói $a = ${a}$ ${u} és $b = ${b}$ ${u}. Számítsd ki az átfogó ($c$) hosszát!`;
+        task.targetInputs = ['c'];
+        task.solution = { c: c * lengthUnits[u], c_unit: u };
+        task.steps = `Pitagorasz-tétel alkalmazása: $c^2 = a^2 + b^2$<br>$c^2 = ${a}^2 + ${b}^2 = ${a*a} + ${b*b} = ${c*c}$<br>$c = \\sqrt{${c*c}} = ${c}$ ${u}`;
+      } else {
+        let a = triplet[0], b = triplet[1], c = triplet[2];
+        task.text = `Adott egy derékszögű háromszög, amelynek átfogója $c = ${c}$ ${u}$ és az egyik befogója $a = ${a}$ ${u}. Számítsd ki a másik befogó ($b$) hosszát!`;
+        task.targetInputs = ['b'];
+        task.solution = { b: b * lengthUnits[u], b_unit: u };
+        task.steps = `Pitagorasz-tétel alkalmazása: $b^2 = c^2 - a^2$<br>$b^2 = ${c}^2 - ${a}^2 = ${c*c} - ${a*a} = ${b*b}$<br>$b = \\sqrt{${b*b}} = ${b}$ ${u}`;
+      }
+    }
+    else if (shape === 'isosceles_triangle') {
+      let triplet = getRandomArrayElement([[3,4,5], [5,12,13], [6,8,10]]);
+      let halfBase = triplet[0];
+      let height = triplet[1];
+      let side = triplet[2];
+      let base = 2 * halfBase;
+
+      task.text = `Egy egyenlőszárú háromszög alapja $c = ${base}$ ${u}, szára pedig $a = ${side}$ ${u}. Számítsd ki az alaphoz tartozó magasságot ($m_c$)!`;
+      task.targetInputs = ['m'];
+      task.solution = { m: height * lengthUnits[u], m_unit: u };
+      task.steps = `Az egyenlőszárú háromszög magassága felezi az alapot: $f_c = ${base}/2 = ${halfBase}$ ${u}.<br>Pitagorasz-tétel a derékszögű fél-háromszögre: $m_c^2 = a^2 - f_c^2$<br>$m_c^2 = ${side}^2 - ${halfBase}^2 = ${side*side} - ${halfBase*halfBase} = ${height*height}$<br>$m_c = ${height}$ ${u}`;
+    }
+    else if (shape === 'square') {
+      let a = getRandomInt(4, 15);
+      let d = parseFloat((a * Math.sqrt(2)).toFixed(2));
+
+      task.text = `Adott egy négyzet, amelynek oldala $a = ${a}$ ${u}. Számítsd ki az átlójának ($d$) hosszát!`;
+      task.targetInputs = ['d'];
+      task.solution = { d: d * lengthUnits[u], d_unit: u };
+      task.steps = `Négyzet átlója a Pitagorasz-tétellel: $d^2 = a^2 + a^2 = 2a^2$<br>$d = a \\sqrt{2} = ${a} \\cdot 1.414 \\approx ${d}$ ${u}`;
+    }
+    else if (shape === 'rectangle') {
+      let triplet = getRandomArrayElement(pythagoreanTriplets);
+      let a = triplet[0], b = triplet[1], d = triplet[2];
+
+      task.text = `Egy téglalap oldalai $a = ${a}$ ${u}$ és $b = ${b}$ ${u}. Számítsd ki az átlójának ($d$) hosszát!`;
+      task.targetInputs = ['d'];
+      task.solution = { d: d * lengthUnits[u], d_unit: u };
+      task.steps = `Téglalap átlója: $d^2 = a^2 + b^2$<br>$d^2 = ${a}^2 + ${b}^2 = ${a*a} + ${b*b} = ${d*d}$<br>$d = ${d}$ ${u}`;
+    }
+    else if (shape === 'trapezoid') {
+      let triplet = getRandomArrayElement([[3,4,5], [5,12,13]]);
+      let h = triplet[0], x = triplet[1], c = getRandomInt(5, 10);
+      let a = c + 2 * x;
+      let leg = triplet[2];
+
+      task.text = `Egy egyenlőszárú trapéz alapjai $a = ${a}$ ${u}$ és $c = ${c}$ ${u}$, magassága pedig $m = ${h}$ ${u}. Számítsd ki a szár ($s$) hosszát!`;
+      task.targetInputs = ['s'];
+      task.solution = { s: leg * lengthUnits[u], s_unit: u };
+      task.steps = `A trapéz szélére eső derékszögű háromszög befogói $m = ${h}$ és $(a-c)/2 = (${a}-${c})/2 = ${x}$.<br>Pitagorasz-tétel a szárra: $s^2 = m^2 + x^2 = ${h}^2 + ${x}^2 = ${leg*leg}$<br>$s = ${leg}$ ${u}`;
+    }
+    else if (shape === 'rhombus_deltoid') {
+      let triplet = getRandomArrayElement([[3,4,5], [5,12,13]]);
+      let e_half = triplet[0], f_half = triplet[1], side = triplet[2];
+      let e = 2 * e_half, f = 2 * f_half;
+
+      task.text = `Egy rombusz átlói $e = ${e}$ ${u}$ és $f = ${f}$ ${u}. Számítsd ki a rombusz oldalának ($a$) hosszát!`;
+      task.targetInputs = ['a'];
+      task.solution = { a: side * lengthUnits[u], a_unit: u };
+      task.steps = `A rombusz átlói merőlegesen felezik egymást, így derékszögű háromszögeket kapunk befogókkal $e/2 = ${e_half}$ és $f/2 = ${f_half}$.<br>$a^2 = (${e}/2)^2 + (${f}/2)^2 = ${e_half*e_half} + ${f_half*f_half} = ${side*side}$<br>$a = ${side}$ ${u}`;
+    }
+    else if (shape === 'parallelogram') {
+      let triplet = getRandomArrayElement([[3,4,5], [5,12,13]]);
+      let h = triplet[0], x = triplet[1], base_part = getRandomInt(4, 8);
+      let a = base_part + x;
+      let leg = triplet[2];
+
+      task.text = `Egy paralelogramma $a = ${a}$ ${u}$-s oldalához tartozó magasság $m = ${h}$ ${u}$, a magasság által az oldalon letörtszabott rövidebb szakasz $x = ${x}$ ${u}. Számítsd ki a paralelogramma másik oldalának ($b$) hosszát!`;
+      task.targetInputs = ['b'];
+      task.solution = { b: leg * lengthUnits[u], b_unit: u };
+      task.steps = `A magasság által levágott derékszögű háromszögből a $b$ oldal az átfogó:<br>$b^2 = m^2 + x^2 = ${h}^2 + ${x}^2 = ${leg*leg}$<br>$b = ${leg}$ ${u}`;
+    }
+    else { // kör húr
+      let triplet = getRandomArrayElement([[3,4,5], [6,8,10], [5,12,13]]);
+      let r = triplet[2], d_center = triplet[0], half_chord = triplet[1];
+      let chord = 2 * half_chord;
+
+      task.text = `Egy $r = ${r}$ ${u}$ sugarú körben a középponttól $d = ${d_center}$ ${u}$ távolságra lévő húr hosszát kell kiszámítani ($k$).`;
+      task.targetInputs = ['k'];
+      task.solution = { k: chord * lengthUnits[u], k_unit: u };
+      task.steps = `A sugár, a távolság és a húr fele derékszögű háromszöget alkot.<br>Fél húr: $x^2 = r^2 - d^2 = ${r}^2 - ${d_center}^2 = ${half_chord*half_chord}$ -> $x = ${half_chord}$ ${u}.<br>A teljes húr: $k = 2 \cdot x = 2 \cdot ${half_chord} = ${chord}$ ${u}`;
+    }
+
+    return task;
+  }
+
+  function renderTask() {
+    if (!currentTask) return;
+
+    document.getElementById('taskTitle').innerText = `Pitagorasz-feladat (${getShapeName(currentTask.shape)})`;
+    document.getElementById('taskText').innerHTML = currentTask.text;
+    
+    renderSvg(currentTask.shape);
+
+    const inputsGrid = document.getElementById('inputsGrid');
+    inputsGrid.innerHTML = '';
+
+    currentTask.targetInputs.forEach(key => {
+      const box = document.createElement('div');
+      box.className = 'input-box';
+
+      const label = document.createElement('label');
+      label.innerText = `Keresett érték (${key}):`;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'input-with-unit';
+
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.step = 'any';
+      input.id = `input_${key}`;
+      input.placeholder = 'Érték...';
+
+      const select = document.createElement('select');
+      select.id = `unit_${key}`;
+      
+      ['cm', 'dm', 'm', 'mm'].forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u;
+        opt.innerText = u;
+        select.appendChild(opt);
+      });
+
+      wrap.appendChild(input);
+      wrap.appendChild(select);
+      box.appendChild(label);
+      box.appendChild(wrap);
+      inputsGrid.appendChild(box);
+    });
+
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback';
+    fb.innerHTML = '';
+  }
+
+  function renderSvg(shape) {
+    const svg = document.getElementById('shapeSvg');
+    let content = '';
+    const stroke = "#2b5c8f";
+    const fill = "#e8f1f5";
+
+    switch(shape) {
+      case 'right_triangle':
+        content = `<polygon points="70,130 230,130 70,40" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
+                   <rect x="70" y="110" width="20" height="20" fill="none" stroke="${stroke}" stroke-width="2"/>`;
+        break;
+      case 'isosceles_triangle':
+        content = `<polygon points="150,30 70,130 230,130" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
+                   <line x1="150" y1="30" x2="150" y2="130" stroke="${stroke}" stroke-width="2" stroke-dasharray="5,5"/>`;
+        break;
+      case 'square':
+      case 'rectangle':
+        content = `<rect x="70" y="40" width="160" height="90" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
+                   <line x1="70" y1="40" x2="230" y2="130" stroke="${stroke}" stroke-width="2" stroke-dasharray="5,5"/>`;
+        break;
+      default:
+        content = `<polygon points="100,30 200,30 240,130 60,130" fill="${fill}" stroke="${stroke}" stroke-width="3"/>`;
+        break;
+    }
+    svg.innerHTML = content;
+  }
+
+  function checkAnswer() {
+    if (!currentTask) return;
+
+    let isCorrect = true;
+    let userAnswers = {};
+    const fb = document.getElementById('feedback');
+    
+    currentTask.targetInputs.forEach(key => {
+      const userVal = parseFloat(document.getElementById(`input_${key}`).value);
+      const userUnit = document.getElementById(`unit_${key}`).value;
+
+      userAnswers[key] = isNaN(userVal) ? 'Nincs megadva' : `${userVal} ${userUnit}`;
+
+      if (isNaN(userVal)) {
+        isCorrect = false;
+        return;
+      }
+
+      let userValInBase = userVal * lengthUnits[userUnit];
+      let targetValInBase = currentTask.solution[key];
+
+      if (Math.abs(userValInBase - targetValInBase) > 0.1) {
+        isCorrect = false;
+      }
+    });
+
+    currentTask.checked = true;
+    currentTask.isCorrect = isCorrect;
+    currentTask.userAnswers = userAnswers;
+
+    if (!practiceHistory.includes(currentTask)) {
+      practiceHistory.push(currentTask);
+    }
+
+    if (isCorrect) {
+      fb.className = 'feedback success';
+      fb.innerHTML = `<strong>Helyes válasz! Kiváló munka! 🎉</strong><div class="solution-steps"><strong>Részletes levezetés:</strong><br>${currentTask.steps}</div>`;
+    } else {
+      fb.className = 'feedback error';
+      fb.innerHTML = `<strong>Sajnos a válasz helytelen. Próbáld újra! 💡</strong><div class="solution-steps"><strong>Segítség / Útmutató:</strong><br>${currentTask.steps}</div>`;
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('studentName').value = '';
+    document.getElementById('shapeType').value = 'random';
+    document.getElementById('calcGoal').value = 'random';
+    practiceHistory = [];
+    generateTask();
+  }
+
+  function openHistoryModal() {
+    const studentName = document.getElementById('studentName').value || 'Tanuló';
+    document.getElementById('modalStudentName').innerText = `${studentName} - Gyakorlásom eredményei`;
+
+    const container = document.getElementById('historyListContainer');
+    
+    if (practiceHistory.length === 0) {
+      container.innerHTML = '<p>Még nem ellenőriztél egyetlen feladatot sem.</p>';
+    } else {
+      let tableHtml = `
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Feladat</th>
+              <th>Megadott válasz</th>
+              <th>Eredmény</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      practiceHistory.forEach((item, index) => {
+        let answersText = Object.entries(item.userAnswers)
+          .map(([k, v]) => `${k} = ${v}`)
+          .join(', ');
+
+        tableHtml += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.text}</td>
+            <td>${answersText}</td>
+            <td class="${item.isCorrect ? 'tag-success' : 'tag-error'}">
+              ${item.isCorrect ? 'Helyes' : 'Hibás'}
+            </td>
+          </tr>
+        `;
+      });
+
+      tableHtml += '</tbody></table>';
+      container.innerHTML = tableHtml;
+    }
+
+    document.getElementById('historyModal').style.display = 'flex';
+  }
+
+  function closeHistoryModal() {
+    document.getElementById('historyModal').style.display = 'none';
+  }
+
+  function getShapeName(shape) {
+    const names = {
+      'right_triangle': 'Derékszögű háromszög',
+      'isosceles_triangle': 'Egyenlőszárú háromszög',
+      'square': 'Négyzet (átló)',
+      'rectangle': 'Téglalap (átló)',
+      'trapezoid': 'Trapéz',
+      'rhombus_deltoid': 'Rombusz / Deltoid',
+      'parallelogram': 'Paralelogramma',
+      'circle': 'Kör (húr)'
+    };
+    return names[shape] || 'Geometriai alakzat';
+  }
+
+  window.onload = function() {
+    generateTask();
+  };
+</script>
+
+</body>
+</html>
