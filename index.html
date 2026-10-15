@@ -99,12 +99,24 @@
       margin-bottom: 5px;
     }
 
-    .form-group input, .form-group select {
+    .form-group input[type="text"], 
+    .form-group input[type="number"], 
+    .form-group select {
       width: 100%;
       padding: 9px;
       border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 0.95rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 5px;
     }
 
     .workspace {
@@ -163,6 +175,7 @@
     .input-with-unit {
       display: flex;
       gap: 5px;
+      align-items: center;
     }
 
     .input-with-unit input {
@@ -174,10 +187,22 @@
     }
 
     .input-with-unit select {
-      width: 80px;
+      width: 75px;
       padding: 8px;
       border: 1px solid var(--border);
       border-radius: 6px;
+    }
+
+    .root-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .root-input-wrapper input {
+      width: 50px !important;
+      text-align: center;
     }
 
     .button-group {
@@ -340,6 +365,12 @@
           </select>
         </div>
 
+        <div class="form-group">
+          <label class="checkbox-group">
+            <input type="checkbox" id="useRootFormat" onchange="renderTask()"> Gyökös kiírás / pontos alak (pl. a√b)
+          </label>
+        </div>
+
         <div class="button-group" style="flex-direction: column;">
           <button class="btn-primary" onclick="generateTask()">Új feladat generálása</button>
           <button class="btn-outline" onclick="openHistoryModal()">Gyakorlásom</button>
@@ -427,7 +458,7 @@
     let task = {
       shape: shape,
       targetInputs: [],
-      solution: {},
+      solutionRaw: {},
       text: "",
       steps: "",
       checked: false,
@@ -444,13 +475,13 @@
         let a = triplet[0], b = triplet[1], c = triplet[2];
         task.text = `Adott egy derékszögű háromszög, amelynek befogói a = ${a} ${u} és b = ${b} ${u}. Számítsd ki az átfogó (c) hosszát!`;
         task.targetInputs = ['c'];
-        task.solution = { c: c * lengthUnits[u], c_unit: u };
+        task.solutionRaw = { c: { exact: c, unit: u, approx: c } };
         task.steps = `Pitagorasz-tétel alkalmazása: c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup><br>c<sup>2</sup> = ${a}<sup>2</sup> + ${b}<sup>2</sup> = ${a*a} + ${b*b} = ${c*c}<br>c = √(${c*c}) = ${c} ${u}`;
       } else {
         let a = triplet[0], b = triplet[1], c = triplet[2];
         task.text = `Adott egy derékszögű háromszög, amelynek átfogója c = ${c} ${u} és az egyik befogója a = ${a} ${u}. Számítsd ki a másik befogó (b) hosszát!`;
         task.targetInputs = ['b'];
-        task.solution = { b: b * lengthUnits[u], b_unit: u };
+        task.solutionRaw = { b: { exact: b, unit: u, approx: b } };
         task.steps = `Pitagorasz-tétel alkalmazása: b<sup>2</sup> = c<sup>2</sup> - a<sup>2</sup><br>b<sup>2</sup> = ${c}<sup>2</sup> - ${a}<sup>2</sup> = ${c*c} - ${a*a} = ${b*b}<br>b = √(${b*b}) = ${b} ${u}`;
       }
     }
@@ -463,17 +494,18 @@
 
       task.text = `Egy egyenlőszárú háromszög alapja c = ${base} ${u}, szára pedig a = ${side} ${u}. Számítsd ki az alaphoz tartozó magasságot (m<sub>c</sub>)!`;
       task.targetInputs = ['m'];
-      task.solution = { m: height * lengthUnits[u], m_unit: u };
+      task.solutionRaw = { m: { exact: height, unit: u, approx: height } };
       task.steps = `Az egyenlőszárú háromszög magassága felezi az alapot: f<sub>c</sub> = ${base} / 2 = ${halfBase} ${u}.<br>Pitagorasz-tétel a derékszögű fél-háromszögre: m<sub>c</sub><sup>2</sup> = a<sup>2</sup> - f<sub>c</sub><sup>2</sup><br>m<sub>c</sub><sup>2</sup> = ${side}<sup>2</sup> - ${halfBase}<sup>2</sup> = ${side*side} - ${halfBase*halfBase} = ${height*height}<br>m<sub>c</sub> = ${height} ${u}`;
     }
     else if (shape === 'square') {
-      let a = getRandomInt(4, 15);
-      let d = parseFloat((a * Math.sqrt(2)).toFixed(2));
+      let a = getRandomInt(4, 12);
+      let approxVal = parseFloat((a * Math.sqrt(2)).toFixed(2));
 
       task.text = `Adott egy négyzet, amelynek oldala a = ${a} ${u}. Számítsd ki az átlójának (d) hosszát!`;
       task.targetInputs = ['d'];
-      task.solution = { d: d * lengthUnits[u], d_unit: u };
-      task.steps = `Négyzet átlója a Pitagorasz-tétellel: d<sup>2</sup> = a<sup>2</sup> + a<sup>2</sup> = 2 · a<sup>2</sup><br>d = a · √2 = ${a} · 1,414 ≈ ${d} ${u}`;
+      // d = a * sqrt(2) -> gyök alatt 2*a^2
+      task.solutionRaw = { d: { exactCoeff: a, exactRoot: 2, unit: u, approx: approxVal } };
+      task.steps = `Négyzet átlója a Pitagorasz-tétellel: d<sup>2</sup> = a<sup>2</sup> + a<sup>2</sup> = 2 · a<sup>2</sup><br>d = a · √2 = ${a}√2 ≈ ${approxVal} ${u}`;
     }
     else if (shape === 'rectangle') {
       let triplet = getRandomArrayElement(pythagoreanTriplets);
@@ -481,7 +513,7 @@
 
       task.text = `Egy téglalap oldalai a = ${a} ${u} és b = ${b} ${u}. Számítsd ki az átlójának (d) hosszát!`;
       task.targetInputs = ['d'];
-      task.solution = { d: d * lengthUnits[u], d_unit: u };
+      task.solutionRaw = { d: { exact: d, unit: u, approx: d } };
       task.steps = `Téglalap átlója: d<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup><br>d<sup>2</sup> = ${a}<sup>2</sup> + ${b}<sup>2</sup> = ${a*a} + ${b*b} = ${d*d}<br>d = √(${d*d}) = ${d} ${u}`;
     }
     else if (shape === 'trapezoid') {
@@ -492,7 +524,7 @@
 
       task.text = `Egy egyenlőszárú trapéz alapjai a = ${a} ${u} és c = ${c} ${u}, magassága pedig m = ${h} ${u}. Számítsd ki a szár (s) hosszát!`;
       task.targetInputs = ['s'];
-      task.solution = { s: leg * lengthUnits[u], s_unit: u };
+      task.solutionRaw = { s: { exact: leg, unit: u, approx: leg } };
       task.steps = `A trapéz szélére eső derékszögű háromszög befogói m = ${h} és (a - c) / 2 = (${a} - ${c}) / 2 = ${x}.<br>Pitagorasz-tétel a szárra: s<sup>2</sup> = m<sup>2</sup> + x<sup>2</sup> = ${h}<sup>2</sup> + ${x}<sup>2</sup> = ${leg*leg}<br>s = √(${leg*leg}) = ${leg} ${u}`;
     }
     else if (shape === 'rhombus_deltoid') {
@@ -502,7 +534,7 @@
 
       task.text = `Egy rombusz átlói e = ${e} ${u} és f = ${f} ${u}. Számítsd ki a rombusz oldalának (a) hosszát!`;
       task.targetInputs = ['a'];
-      task.solution = { a: side * lengthUnits[u], a_unit: u };
+      task.solutionRaw = { a: { exact: side, unit: u, approx: side } };
       task.steps = `A rombusz átlói merőlegesen felezik egymást, így derékszögű háromszögeket kapunk befogókkal e / 2 = ${e_half} és f / 2 = ${f_half}.<br>a<sup>2</sup> = (${e} / 2)<sup>2</sup> + (${f} / 2)<sup>2</sup> = ${e_half*e_half} + ${f_half*f_half} = ${side*side}<br>a = √(${side*side}) = ${side} ${u}`;
     }
     else if (shape === 'parallelogram') {
@@ -513,7 +545,7 @@
 
       task.text = `Egy paralelogramma (romboid) a = ${a} ${u}-s oldalához tartozó magasság m = ${h} ${u}, a magasság által az oldalon letörtszabott rövidebb szakasz x = ${x} ${u}. Számítsd ki a paralelogramma másik oldalának (b) hosszát!`;
       task.targetInputs = ['b'];
-      task.solution = { b: leg * lengthUnits[u], b_unit: u };
+      task.solutionRaw = { b: { exact: leg, unit: u, approx: leg } };
       task.steps = `A magasság által levágott derékszögű háromszögből a b oldal az átfogó:<br>b<sup>2</sup> = m<sup>2</sup> + x<sup>2</sup> = ${h}<sup>2</sup> + ${x}<sup>2</sup> = ${leg*leg}<br>b = √(${leg*leg}) = ${leg} ${u}`;
     }
     else { 
@@ -523,7 +555,7 @@
 
       task.text = `Egy r = ${r} ${u} sugarú körben a középponttól d = ${d_center} ${u} távolságra lévő húr hosszát (k) kell kiszámítani.`;
       task.targetInputs = ['k'];
-      task.solution = { k: chord * lengthUnits[u], k_unit: u };
+      task.solutionRaw = { k: { exact: chord, unit: u, approx: chord } };
       task.steps = `A sugár, a távolság és a húr fele derékszögű háromszöget alkot.<br>Fél húr: x<sup>2</sup> = r<sup>2</sup> - d<sup>2</sup> = ${r}<sup>2</sup> - ${d_center}<sup>2</sup> = ${half_chord*half_chord} -> x = ${half_chord} ${u}.<br>A teljes húr: k = 2 · x = 2 · ${half_chord} = ${chord} ${u}`;
     }
 
@@ -540,6 +572,7 @@
 
     const inputsGrid = document.getElementById('inputsGrid');
     inputsGrid.innerHTML = '';
+    const useRoot = document.getElementById('useRootFormat').checked;
 
     currentTask.targetInputs.forEach(key => {
       const box = document.createElement('div');
@@ -551,15 +584,42 @@
       const wrap = document.createElement('div');
       wrap.className = 'input-with-unit';
 
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.step = 'any';
-      input.id = `input_${key}`;
-      input.placeholder = 'Érték...';
+      if (useRoot) {
+        // Gyökös alak beviteli mezői: [külső szám] √ [gyök alatti szám]
+        const rootDiv = document.createElement('div');
+        rootDiv.className = 'root-input-wrapper';
+
+        const coeffInput = document.createElement('input');
+        coeffInput.type = 'number';
+        coeffInput.step = 'any';
+        coeffInput.id = `input_${key}_coeff`;
+        coeffInput.placeholder = '1';
+
+        const rootSign = document.createElement('span');
+        rootSign.innerHTML = '√';
+        rootSign.style.fontWeight = 'bold';
+
+        const underRootInput = document.createElement('input');
+        underRootInput.type = 'number';
+        underRootInput.step = 'any';
+        underRootInput.id = `input_${key}_root`;
+        underRootInput.placeholder = 'szám';
+
+        rootDiv.appendChild(coeffInput);
+        rootDiv.appendChild(rootSign);
+        rootDiv.appendChild(underRootInput);
+        wrap.appendChild(rootDiv);
+      } else {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.step = 'any';
+        input.id = `input_${key}`;
+        input.placeholder = 'Érték...';
+        wrap.appendChild(input);
+      }
 
       const select = document.createElement('select');
       select.id = `unit_${key}`;
-      
       ['cm', 'dm', 'm', 'mm'].forEach(u => {
         const opt = document.createElement('option');
         opt.value = u;
@@ -567,7 +627,6 @@
         select.appendChild(opt);
       });
 
-      wrap.appendChild(input);
       wrap.appendChild(select);
       box.appendChild(label);
       box.appendChild(wrap);
@@ -600,15 +659,13 @@
                    <line x1="70" y1="40" x2="230" y2="130" stroke="${stroke}" stroke-width="2" stroke-dasharray="5,5"/>`;
         break;
       case 'parallelogram':
-        // Romboid / Paralelogramma ábra ferde oldalakkal
         content = `<polygon points="90,120 230,120 210,50 70,50" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
                    <line x1="70" y1="50" x2="70" y2="120" stroke="${stroke}" stroke-width="2" stroke-dasharray="5,5"/>`;
         break;
       case 'circle':
-        // Kör sugárral és húrral
         content = `<circle cx="150" cy="85" r="55" fill="${fill}" stroke="${stroke}" stroke-width="3"/>
                    <line x1="150" y1="85" x2="205" y2="85" stroke="${stroke}" stroke-width="2"/>
-                   <line x1="110" y1="125" x2="190" y2="125" stroke="${accent}" stroke-width="2" stroke-dasharray="4,4"/>
+                   <line x1="110" y1="125" x2="190" t1="125" x2="190" y2="125" stroke="#f57c00" stroke-width="2" stroke-dasharray="4,4"/>
                    <line x1="150" y1="85" x2="150" y2="125" stroke="${stroke}" stroke-width="2" stroke-dasharray="3,3"/>`;
         break;
       default:
@@ -624,22 +681,48 @@
     let isCorrect = true;
     let userAnswers = {};
     const fb = document.getElementById('feedback');
+    const useRoot = document.getElementById('useRootFormat').checked;
     
     currentTask.targetInputs.forEach(key => {
-      const userVal = parseFloat(document.getElementById(`input_${key}`).value);
       const userUnit = document.getElementById(`unit_${key}`).value;
+      let userValInBase = 0;
 
-      userAnswers[key] = isNaN(userVal) ? 'Nincs megadva' : `${userVal} ${userUnit}`;
+      if (useRoot) {
+        const coeff = parseFloat(document.getElementById(`input_${key}_coeff`).value) || 1;
+        const underRoot = parseFloat(document.getElementById(`input_${key}_root`).value);
 
-      if (isNaN(userVal)) {
-        isCorrect = false;
-        return;
+        if (isNaN(underRoot)) {
+          isCorrect = false;
+          userAnswers[key] = 'Hiányos adat';
+          return;
+        }
+
+        userAnswers[key] = `${coeff !== 1 ? coeff : ''}√${underRoot} ${userUnit}`;
+        // Kiszámítjuk a decimális értékét az ellenőrzéshez (pl. 1.41 * ... vagy alapérték)
+        let evaluated = coeff * Math.sqrt(underRoot);
+        userValInBase = evaluated * lengthUnits[userUnit];
+      } else {
+        const userVal = parseFloat(document.getElementById(`input_${key}`).value);
+        userAnswers[key] = isNaN(userVal) ? 'Nincs megadva' : `${userVal} ${userUnit}`;
+
+        if (isNaN(userVal)) {
+          isCorrect = false;
+          return;
+        }
+        userValInBase = userVal * lengthUnits[userUnit];
       }
 
-      let userValInBase = userVal * lengthUnits[userUnit];
-      let targetValInBase = currentTask.solution[key];
+      let solObj = currentTask.solutionRaw[key];
+      let targetValInBase = 0;
 
-      if (Math.abs(userValInBase - targetValInBase) > 0.1) {
+      if (solObj.exactCoeff !== undefined) {
+        // Pl négyzet átlója: a * sqrt(2)
+        targetValInBase = solObj.exactCoeff * Math.sqrt(solObj.exactRoot) * lengthUnits[solObj.unit];
+      } else {
+        targetValInBase = solObj.exact * lengthUnits[solObj.unit];
+      }
+
+      if (Math.abs(userValInBase - targetValInBase) > 0.15) {
         isCorrect = false;
       }
     });
@@ -665,6 +748,7 @@
     document.getElementById('studentName').value = '';
     document.getElementById('shapeType').value = 'random';
     document.getElementById('calcGoal').value = 'random';
+    document.getElementById('useRootFormat').checked = false;
     practiceHistory = [];
     generateTask();
   }
